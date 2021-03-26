@@ -234,3 +234,21 @@ end if;
 
 SELECT sum_id;
 END;
+
+CREATE TRIGGER summitAfterDelete
+    AFTER DELETE
+    ON summit FOR EACH ROW
+
+BEGIN
+
+    IF (EXISTS(SELECT id FROM summit_alps WHERE summit_id = OLD.id)) Then
+        DELETE FROM summit_alps
+                WHERE summit_id = OLD.id;
+    end if;
+
+    IF (EXISTS(SELECT id FROM summit_names WHERE summit_id = OLD.id)) Then
+        DELETE FROM summit_names
+        WHERE summit_id = OLD.id;
+    end if;
+
+END;
