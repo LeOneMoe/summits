@@ -27,7 +27,7 @@ public class Summit {
     private List<SummitName> summitNames;
 
     @OneToMany(mappedBy = "summit")
-    private List<SummitAlps> summitAlps;
+    private List<SummitAlp> summitAlps;
 
     public Long getId() {
         return id;
@@ -77,11 +77,11 @@ public class Summit {
         this.summitNames = summitNames;
     }
 
-    public List<SummitAlps> getSummitAlps() {
+    public List<SummitAlp> getSummitAlps() {
         return summitAlps;
     }
 
-    public void setSummitAlps(List<SummitAlps> summitAlps) {
+    public void setSummitAlps(List<SummitAlp> summitAlps) {
         this.summitAlps = summitAlps;
     }
 }

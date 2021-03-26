@@ -17,9 +17,9 @@ public class SummitName {
     @Column(name = "summit_name")
     private String summitName;
 
-    // Note: do not create getters and setters for parent entity or it will create infinite recursion
+    // Warning: DO NOT create getters and setters for parent entity or it will trigger infinite recursion
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "summit_id")
+    @JoinColumn(name = "summit_id") // name of the foreign key column
     private Summit summit;
 
     public Long getId() {

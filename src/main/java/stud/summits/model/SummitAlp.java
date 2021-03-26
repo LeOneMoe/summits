@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "summit_alps")
 @ToString(of = {"id", "lastName", "firstName", "middleName", "ascentDate"})
 @EqualsAndHashCode(of = {"id"})
-public class SummitAlps {
+public class SummitAlp {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -27,9 +27,9 @@ public class SummitAlps {
     @Column(name = "ascent_date")
     private Date ascentDate;
 
-    // Note: do not create getters and setters for parent entity or it will create infinite recursion
+    // Warning: DO NOT create getters and setters for parent entity or it will trigger infinite recursion
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "summit_id")
+    @JoinColumn(name = "summit_id") // name of the foreign key column
     private Summit summit;
 
     public Long getId() {
