@@ -1,31 +1,28 @@
 package stud.summits.controller;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import stud.summits.model.Summit;
 import stud.summits.dao.SummitDao;
-
-import java.util.List;
+import stud.summits.dao.SummitNameDao;
+import stud.summits.exceptions.NotFoundException;
+import stud.summits.model.Summit;
 
 @RestController
-@RequestMapping("summit")
+@RequestMapping("summits")
 public class SummitController {
     private final SummitDao summitDao;
 
     @Autowired
-    public SummitController(SummitDao summitDao) {
+    public SummitController(SummitDao summitDao, SummitNameDao summitNameDao) {
         this.summitDao = summitDao;
     }
 
     @GetMapping
-    public List<Summit> list() {
-        return summitDao.findAll();
-    }
-
-    @GetMapping("{id}")
-    public Summit getOne(@PathVariable("id") Summit summit) {
-        return summit;
+    public Page<Summit> getAll(Pageable pageable) {
+        return summitDao.findAll(pageable);
     }
 
     @PostMapping
@@ -35,15 +32,25 @@ public class SummitController {
 
     @PutMapping("{id}")
     public Summit update(
-            @PathVariable("id") Summit summitFromDb,
-            @RequestBody Summit summit
+            @PathVariable Long id,
+            @RequestBody Summit summitRequest
     ) {
-        BeanUtils.copyProperties(summit, summitFromDb, "id");
-        return summitDao.save(summitFromDb);
+        return summitDao.findById(id).map(summit -> {
+            summit.setMainland(summitRequest.getMainland());
+            summit.setLatitude(summitRequest.getLatitude());
+            summit.setLongitude(summitRequest.getLongitude());
+            summit.setHeight(summitRequest.getHeight());
+
+            return summitDao.save(summit);
+        }).orElseThrow(() -> new NotFoundException("SummitId: " + id + " not found"));
     }
 
+
     @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") Summit summit) {
-        summitDao.delete(summit);
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        return summitDao.findById(id).map(summit -> {
+            summitDao.delete(summit);
+            return ResponseEntity.ok().build();
+        }).orElseThrow(() -> new NotFoundException("SummitId: " + id + " not found"));
     }
 }

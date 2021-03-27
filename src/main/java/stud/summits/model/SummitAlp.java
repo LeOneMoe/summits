@@ -1,18 +1,17 @@
 package stud.summits.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "summit_alps")
-@ToString(of = {"id", "lastName", "firstName", "middleName", "ascentDate"})
-@EqualsAndHashCode(of = {"id"})
-public class SummitAlp {
+public class SummitAlp extends AuditModel{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "last_name")
@@ -26,10 +25,10 @@ public class SummitAlp {
 
     @Column(name = "ascent_date")
     private Date ascentDate;
-
-    // Warning: DO NOT create getters and setters for parent entity or it will trigger infinite recursion
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "summit_id") // name of the foreign key column
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "summit_id", nullable = false) // name of the foreign key column
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Summit summit;
 
     public Long getId() {
@@ -70,5 +69,13 @@ public class SummitAlp {
 
     public void setAscentDate(Date ascentDate) {
         this.ascentDate = ascentDate;
+    }
+
+    public Summit getSummit() {
+        return summit;
+    }
+
+    public void setSummit(Summit summit) {
+        this.summit = summit;
     }
 }

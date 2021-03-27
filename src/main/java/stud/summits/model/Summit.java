@@ -1,18 +1,12 @@
 package stud.summits.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "summit")
-@ToString(of = {"id", "mainland" , "latitude", "longitude", "height", "summitNames", "summitAlps"})
-@EqualsAndHashCode(of = {"id"})
-public class Summit {
+@Table(name = "summits")
+public class Summit extends AuditModel{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String mainland;
@@ -22,12 +16,6 @@ public class Summit {
     private int longitude;
 
     private int height;
-
-    @OneToMany(mappedBy = "summit")
-    private List<SummitName> summitNames;
-
-    @OneToMany(mappedBy = "summit")
-    private List<SummitAlp> summitAlps;
 
     public Long getId() {
         return id;
@@ -67,21 +55,5 @@ public class Summit {
 
     public void setHeight(int height) {
         this.height = height;
-    }
-
-    public List<SummitName> getSummitNames() {
-        return summitNames;
-    }
-
-    public void setSummitNames(List<SummitName> summitNames) {
-        this.summitNames = summitNames;
-    }
-
-    public List<SummitAlp> getSummitAlps() {
-        return summitAlps;
-    }
-
-    public void setSummitAlps(List<SummitAlp> summitAlps) {
-        this.summitAlps = summitAlps;
     }
 }

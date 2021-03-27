@@ -1,4 +1,4 @@
-create table summit
+create table summits
 (
     id        int auto_increment,
     mainland  varchar(45) null,
@@ -9,7 +9,7 @@ create table summit
         unique (id)
 );
 
-alter table summit
+alter table summits
     add primary key (id);
 
 create table summit_alps
@@ -22,7 +22,7 @@ create table summit_alps
     middle_name varchar(45)               null,
     ascent_date date default '2021-03-21' not null,
     constraint `picks _main_id`
-        foreign key (summit_id) references summit (id)
+        foreign key (summit_id) references summits (id)
             on update cascade on delete cascade
 );
 
@@ -39,7 +39,7 @@ create table summit_names
     constraint summit_names_summit_name_uindex
         unique (summit_name),
     constraint picks_id
-        foreign key (summit_id) references summit (id)
+        foreign key (summit_id) references summits (id)
             on update cascade on delete cascade
 );
 
@@ -53,7 +53,7 @@ create
 definer = root@localhost procedure addNewSummit(IN sum_mainland varchar(45), IN sum_latitude int,
                                                     IN sum_longitude int, IN sum_height int)
 BEGIN
-INSERT INTO `stud`.`summit`
+INSERT INTO `stud`.`summits`
 (`mainland`, `latitude`, `longitude`, `height`)
 VALUES (sum_mainland, sum_latitude, sum_longitude, sum_height);
 
@@ -68,7 +68,7 @@ IF (DATE(alp_ad) = '0000-00-00') THEN
 SET alp_ad = now();
 END IF;
 
-IF (EXISTS(SELECT `id` FROM `stud`.`summit` WHERE `id` = sum_id LIMIT 1)) THEN
+IF (EXISTS(SELECT `id` FROM `stud`.`summits` WHERE `id` = sum_id LIMIT 1)) THEN
         IF (NOT EXISTS(SELECT `id`
                        FROM `stud`.`summit_alps`
                        WHERE `first_name` = alp_fn
@@ -92,7 +92,7 @@ END;
 create
 definer = root@localhost procedure addNewSummitName(IN sum_id int, IN sum_name varchar(45))
 BEGIN
-IF (EXISTS(SELECT `id` From `stud`.`summit` Where `id` = sum_id LIMIT 1)) Then
+IF (EXISTS(SELECT `id` From `stud`.`summits` Where `id` = sum_id LIMIT 1)) Then
         IF (NOT EXISTS(SELECT `summit_id` From `stud`.`summit_names` Where `summit_name` = sum_name LIMIT 1)) THEN
 INSERT INTO `stud`.`summit_names`
 (`summit_id`, `summit_name`)
@@ -122,8 +122,8 @@ END;
 create
 definer = root@localhost procedure deleteSummitById(IN sum_id int)
 BEGIN
-IF (EXISTS(SELECT `id` FROM `stud`.`summit` WHERE `id` = sum_id LIMIT 1)) Then
-DELETE FROM `stud`.`summit` WHERE `id` = sum_id;
+IF (EXISTS(SELECT `id` FROM `stud`.`summits` WHERE `id` = sum_id LIMIT 1)) Then
+DELETE FROM `stud`.`summits` WHERE `id` = sum_id;
 ELSE
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'SUMMIT WITH THIS ID DO NOT EXISTS';
 END IF;
@@ -146,7 +146,7 @@ END;
 create
 definer = root@localhost procedure getAllSummits()
 BEGIN
-SELECT * FROM `stud`.`summit`;
+SELECT * FROM `stud`.`summits`;
 END;
 
 create
@@ -165,7 +165,7 @@ BEGIN
 DECLARE summit_id INT DEFAULT (0);
 SELECT `id` INTO summit_id FROM `stud`.`summit_names` Where `summit_name` = Name;
 IF (summit_id > 0) THEN
-SELECT * FROM `stud`.`summit` Where `id` = summit_id;
+SELECT * FROM `stud`.`summits` Where `id` = summit_id;
 Else
 Select null;
 END IF;
@@ -185,8 +185,8 @@ create
 definer = root@localhost procedure updateSummit(IN sum_id int, IN sum_mainland varchar(45), IN sum_latitude int,
                                                     IN sum_longitude int, IN sum_height int)
 BEGIN
-IF (EXISTS(SELECT `id` FROM `stud`.`summit` WHERE `id` = sum_id LIMIT 1)) THEN
-UPDATE `stud`.`summit`
+IF (EXISTS(SELECT `id` FROM `stud`.`summits` WHERE `id` = sum_id LIMIT 1)) THEN
+UPDATE `stud`.`summits`
 SET `mainland`  = sum_mainland,
     `latitude`  = sum_latitude,
     `longitude` = sum_longitude,
@@ -235,20 +235,20 @@ end if;
 SELECT sum_id;
 END;
 
-CREATE TRIGGER summitAfterDelete
-    AFTER DELETE
-    ON summit FOR EACH ROW
-
-BEGIN
-
-    IF (EXISTS(SELECT id FROM summit_alps WHERE summit_id = OLD.id)) Then
-        DELETE FROM summit_alps
-                WHERE summit_id = OLD.id;
-    end if;
-
-    IF (EXISTS(SELECT id FROM summit_names WHERE summit_id = OLD.id)) Then
-        DELETE FROM summit_names
-        WHERE summit_id = OLD.id;
-    end if;
-
-END;
+# CREATE TRIGGER summitAfterDelete
+#     AFTER DELETE
+#     ON summits FOR EACH ROW
+#
+# BEGIN
+#
+#     IF (EXISTS(SELECT id FROM summit_alps WHERE summit_id = OLD.id)) Then
+#         DELETE FROM summit_alps
+#                 WHERE summit_id = OLD.id;
+#     end if;
+#
+#     IF (EXISTS(SELECT id FROM summit_names WHERE summit_id = OLD.id)) Then
+#         DELETE FROM summit_names
+#         WHERE summit_id = OLD.id;
+#     end if;
+#
+# END;

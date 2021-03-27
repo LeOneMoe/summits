@@ -1,50 +1,75 @@
 package stud.summits.controller;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import stud.summits.dao.SummitAlpDao;
+import stud.summits.dao.SummitDao;
+import stud.summits.exceptions.NotFoundException;
 import stud.summits.model.SummitAlp;
 
-import java.util.List;
+import javax.validation.Valid;
 
 
 @RestController
-@RequestMapping("summitAlp")
 public class SummitAlpController {
     private final SummitAlpDao summitAlpDao;
-    
+    private final SummitDao summitDao;
+
     @Autowired
-    public SummitAlpController(SummitAlpDao summitAlpDao) {
+    public SummitAlpController(SummitAlpDao summitAlpDao, SummitDao summitDao) {
         this.summitAlpDao = summitAlpDao;
+        this.summitDao = summitDao;
     }
 
-    @GetMapping
-    public List<SummitAlp> list() {
-        return summitAlpDao.findAll();
-    }
-
-    @GetMapping("{id}")
-    public SummitAlp getOne(@PathVariable("id") SummitAlp summitAlp) {
-        return summitAlp;
-    }
-
-    @PostMapping
-    public SummitAlp create(@RequestBody SummitAlp summitAlp) {
-        return summitAlpDao.save(summitAlp);
-    }
-
-    @PutMapping("{id}")
-    public SummitAlp update(
-            @PathVariable("id") SummitAlp summitAlpFromDb,
-            @RequestBody SummitAlp summitAlp
+    @GetMapping("summits/{summitId}/alps")
+    public Page<SummitAlp> findAllBySummitId(
+            @PathVariable("summitId") Long summitId,
+            Pageable pageable
     ) {
-        BeanUtils.copyProperties(summitAlp, summitAlpFromDb, "id");
-        return summitAlpDao.save(summitAlpFromDb);
+        return summitAlpDao.findBySummitId(summitId, pageable);
     }
 
-    @DeleteMapping("{id}")
-    public void delete(@PathVariable("id") SummitAlp summitAlp) {
-        summitAlpDao.delete(summitAlp);
+    @PostMapping("summits/{summitId}/alps")
+    public SummitAlp create(
+            @PathVariable("summitId") Long summitId,
+            @Valid @RequestBody SummitAlp summitAlp
+    ) {
+        return summitDao.findById(summitId).map(summit -> {
+            summitAlp.setSummit(summit);
+            return summitAlpDao.save(summitAlp);
+        }).orElseThrow(() -> new NotFoundException("SummitId: " + summitId + " not found"));
+    }
+
+    @PutMapping("summits/{summitId}/alps/{alpId}")
+    public SummitAlp update(
+            @PathVariable("summitId") Long summitId,
+            @PathVariable("alpId") Long alpId,
+            @Valid @RequestBody SummitAlp summitAlpRequest
+    ) {
+        if (!summitDao.existsById(summitId)) {
+            throw new NotFoundException("SummitId: " + summitId + " not found");
+        }
+
+        return summitAlpDao.findById(alpId).map(summitAlp -> {
+            summitAlp.setAscentDate(summitAlpRequest.getAscentDate());
+            summitAlp.setFirstName(summitAlpRequest.getFirstName());
+            summitAlp.setLastName(summitAlpRequest.getLastName());
+            summitAlp.setMiddleName(summitAlpRequest.getMiddleName());
+            return summitAlpDao.save(summitAlp);
+        }).orElseThrow(() -> new NotFoundException("NameId: " + alpId + " not found"));
+    }
+
+    @DeleteMapping("summits/{summitId}/alps/{alpId}")
+    public ResponseEntity<?> delete(
+            @PathVariable("summitId") Long summitId,
+            @PathVariable("alpId") Long alpId
+    ) {
+        return summitAlpDao.findByIdAndSummitId(alpId, summitId).map(summitAlp -> {
+            summitAlpDao.delete(summitAlp);
+            return ResponseEntity.ok().build();
+        }).orElseThrow(() -> new NotFoundException("SummitAlp not found with id " + alpId + " and SummitId " + summitId));
     }
 }
