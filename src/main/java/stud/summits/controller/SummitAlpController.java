@@ -1,8 +1,6 @@
 package stud.summits.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import stud.summits.dao.SummitAlpDao;
@@ -11,6 +9,7 @@ import stud.summits.exceptions.NotFoundException;
 import stud.summits.model.SummitAlp;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -25,11 +24,10 @@ public class SummitAlpController {
     }
 
     @GetMapping("summits/{summitId}/alps")
-    public Page<SummitAlp> findAllBySummitId(
-            @PathVariable("summitId") Long summitId,
-            Pageable pageable
+    public List<SummitAlp> findAllBySummitId(
+            @PathVariable("summitId") Long summitId
     ) {
-        return summitAlpDao.findBySummitId(summitId, pageable);
+        return summitAlpDao.findBySummitId(summitId);
     }
 
     @PostMapping("summits/{summitId}/alps")

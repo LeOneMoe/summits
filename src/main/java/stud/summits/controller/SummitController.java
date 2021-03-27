@@ -1,14 +1,14 @@
 package stud.summits.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import stud.summits.dao.SummitDao;
 import stud.summits.dao.SummitNameDao;
 import stud.summits.exceptions.NotFoundException;
 import stud.summits.model.Summit;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("summits")
@@ -21,8 +21,8 @@ public class SummitController {
     }
 
     @GetMapping
-    public Page<Summit> getAll(Pageable pageable) {
-        return summitDao.findAll(pageable);
+    public List<Summit> getAll() {
+        return summitDao.findAll();
     }
 
     @PostMapping
