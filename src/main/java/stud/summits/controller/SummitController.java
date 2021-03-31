@@ -10,8 +10,10 @@ import stud.summits.model.Summit;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("summits")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SummitController {
     private final SummitDao summitDao;
 

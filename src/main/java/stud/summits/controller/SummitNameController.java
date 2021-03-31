@@ -11,8 +11,8 @@ import stud.summits.model.SummitName;
 import javax.validation.Valid;
 import java.util.List;
 
-
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SummitNameController {
     private final SummitNameDao summitNameDao;
     private final SummitDao summitDao;

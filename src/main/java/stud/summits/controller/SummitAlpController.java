@@ -13,6 +13,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SummitAlpController {
     private final SummitAlpDao summitAlpDao;
     private final SummitDao summitDao;
